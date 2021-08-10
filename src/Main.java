@@ -8,7 +8,7 @@ import java.awt.Graphics;
 
 import java.util.ArrayList;
 
-public class Main{
+public class Main extends JPanel{
     boolean gameActive = true;
     JFrame board = new JFrame("Asteroids");
     int boardsize = 600;
@@ -17,13 +17,27 @@ public class Main{
 
     public Main(){
         board.setSize(boardsize,boardsize);
-        board.setVisible(true);
         board.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        board.setResizable(false);
+        board.add(this);
+
+        board.setVisible(true);
+
+
+    }
+    public void paint(Graphics g){
+        super.paintComponent(g);
+        
+        g.fillOval(0,0,100,100);
     }
 
     public void tick(){
 
     }
+
+
+
+
 
     public static void main(String[] args){
         Main m = new Main();

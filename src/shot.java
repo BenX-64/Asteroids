@@ -1,3 +1,3 @@
 public class shot {
-    int fweight = 5;
+    int dmg = 50;
 }

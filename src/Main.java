@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class Main{
     boolean gameActive = true;
-    JFrame board = new JFrame("Snake");
+    JFrame board = new JFrame("Asteroids");
     int boardsize = 600;
     
     

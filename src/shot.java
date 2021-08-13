@@ -1,3 +1,3 @@
 public class shot {
-    int dmg = 50;
+    int dmg;
 }

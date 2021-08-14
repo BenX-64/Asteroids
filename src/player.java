@@ -1,20 +1,6 @@
 import java.io.File;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JComponent;
-
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-import java.io.IOException;
-
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-
 
 public class player {
     final int psize = 40; //player size as a square
@@ -51,6 +37,10 @@ public class player {
         this.hp = hp;
         this.dps = dps;
         this.ma = ma;
+        /*
+        i couldn't find a way to easily rotate a jlabel imageicon
+        so please don't judge it too harshly
+        */
         String degstr = Integer.toString(deg); //Manages icon img paths
         String iconPathL = new File("").getAbsolutePath()+ "/assets/playerl/playerl" + degstr + ".png"; //imageicon shenanigans
         String iconPathB = new File("").getAbsolutePath()+ "/assets/playerb/playerb" + degstr + ".png";

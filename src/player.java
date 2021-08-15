@@ -5,11 +5,15 @@ import javax.swing.JLabel;
 public class player {
     final int psize = 40; //player size as a square
 
-    boolean stoppingSpin = false;
+    boolean isDummy; 
+    //if it's true it's just gonna be a ship
+    //that mimics the real ship's rotation on the main screen.
+
 
     int totdeg = 0; //Keeps track of ship's rotation
     int deg = 0;
-    int hp = 100; //self explanatory
+    int maxhp = 100; //self explanatory
+    int hp;
     int dps; //damage per shot
 
     boolean isBoosting = false; //self explanatory
@@ -24,7 +28,7 @@ public class player {
     private int ay;
     private int vx = 0; //x and y components of velocity
     private int vy = 0;
-    int cs; //current speed of the ship
+    double cs = 0.0; //current speed of the ship
     
 
     JLabel icon;
@@ -32,9 +36,10 @@ public class player {
     String iconPathL, iconPathB;
 
     
-    public player(int hp, int dps, int ma, int mt){
+    public player(int hp, int dps, int ma, int mt, boolean isDummy){
         this.mt = mt;
-        this.hp = hp;
+        this.maxhp = hp;
+        this.hp = this.maxhp;
         this.dps = dps;
         this.ma = ma;
         /*
@@ -47,7 +52,11 @@ public class player {
 
         ImageIcon imageL = new ImageIcon(iconPathL);
         ImageIcon imageB = new ImageIcon(iconPathB);
-
+        this.isDummy = isDummy;
+        if(this.isDummy){
+            x = 0; 
+            y = Main.boardys-2*psize;
+        }
         icon = new JLabel(imageL); 
         icon.setBounds(x, y, psize, psize);
 
@@ -70,6 +79,8 @@ public class player {
         rotate(av);
         antiOOB(); //prevents ship from exiting board
         icon.setBounds(x,y,psize,psize);
+        double cs2x =Double.valueOf(vx); 
+        cs = Math.sqrt(Math.pow(Math.abs(vx),2) + Math.pow(Math.abs(vy),2));
     }
     
     public void rotate(int deg){

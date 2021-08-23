@@ -19,16 +19,16 @@ public class player {
 
     boolean thrusting = false; //self explanatory
     int isTurning = 0; //self explanatory, 0 for no, 1 = counter-clockwise, 2 = clockwise
-    int x = Main.boardxs/2 - psize/2; //player x and y positions
-    int y = Main.boardys/2 - psize/2;
+    double x = Main.boardxs/2 - psize/2; //player x and y positions
+    double y = Main.boardys/2 - psize/2;
 
     private int av = 0; //angular velocity
-    private int mt; //max torque
-    private int ma; //max acceleration
+    private double mt; //max torque
+    private double ma; //max acceleration
     private int ax; //x and y components of acceleration
     private int ay;
-    private int vx = 0; //x and y components of velocity
-    private int vy = 0;
+    private double vx = 0; //x and y components of velocity
+    private double vy = 0;
     double cs = 0.0; //current speed of the ship
     String degstr;
 
@@ -38,7 +38,7 @@ public class player {
 
     Area hitbox;
     
-    public player(int hp, int dps, int ma, int mt, boolean isDummy){
+    public player(int hp, int dps, int ma, double mt, boolean isDummy){
         this.mt = mt;
         this.maxhp = hp;
         this.hp = this.maxhp; 
@@ -61,7 +61,7 @@ public class player {
             //thrusting = false;
         }
         icon = new JLabel(imageL); 
-        icon.setBounds(x, y, psize, psize);
+        icon.setBounds((int)x, (int)y, psize, psize);
         hitbox = new Area(icon.getBounds());
 
     }
@@ -86,7 +86,7 @@ public class player {
             this.av += this.mt;
         }
         rotate(av);
-        this.icon.setBounds(x,y,psize,psize); 
+        this.icon.setBounds((int)x,(int)y,psize,psize); 
         hitbox = new Area(icon.getBounds());
         cs = Math.sqrt(Math.pow(Math.abs(vx),2) + Math.pow(Math.abs(vy),2));
     }
@@ -112,25 +112,29 @@ public class player {
         
         ImageIcon tempImage = new ImageIcon(tempIconPath);
         this.icon.setIcon(tempImage);
-        icon.setBounds(x,y,psize,psize);
+        icon.setBounds((int)x,(int)y,psize,psize);
     }
 
     public void antiOOB(){  //prevents ship from leaving the screen
-        if(x+psize/2 >= Main.boardxs){
+        if(x+psize/2 >= Main.boardxs){ //OOB right wall
             x = psize/2;
         }
-        if(x < -psize/2){
+        if(x < -psize/2){ //OOB left wall
             x = Main.boardxs - psize/2;
         }
-        if(y+psize/2 > Main.boardys){
+        if(y+psize/2 > Main.boardys){ //OOB bottom wall
             y = -psize/2;
         }
-        if(y<-psize/2){
+        if(y<-psize/2){ //OOB top wall
             y = Main.boardys-psize/2;
         }
     }
 
     public void dmg(int dmg){
+        if(dmg>=hp){ //prevents hp from going negative
+            hp = 0;
+            return;
+        }
         hp-=dmg;
     }
 

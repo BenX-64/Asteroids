@@ -22,13 +22,15 @@ public class Main extends JLayeredPane implements KeyListener{
     static int boardys = 600; //board x and y size
     static int boardxs = 1000;
     
-    int hp = 100, dps = 50, ma = 2, mt = 2; //player values
+    int hp = 100, dps = 25, ma = 1;
+    double mt = 2.5; //player valus
    
     player p = new player(hp, dps, ma, mt, false);
     player pr = new player(hp, dps, ma, mt, true);
 
+    ArrayList<shot> shots = new ArrayList<>();
     ArrayList<ast> astlist = new ArrayList<>();
-    int maxasts = 15; //sets limit for max # of asteroids on board at once
+    int maxasts = 16; //sets limit for max # of asteroids on board at once
 
     String cst = "Speed: " + String.format("%.2f",p.cs*20);
     JLabel cs = new JLabel(cst);
@@ -52,7 +54,7 @@ public class Main extends JLayeredPane implements KeyListener{
         setLayer(board.add(cs),0);
         
         hpi.setForeground(Color.white); //hp %
-        hpi.setBounds(10,pr.y-20,boardxs, 20);
+        hpi.setBounds(10,(int)pr.y-20,boardxs, 20);
         hpi.setFont(new Font("TimesRoman", Font.PLAIN, 20));
         setLayer(board.add(hpi),0);
 
@@ -74,29 +76,130 @@ public class Main extends JLayeredPane implements KeyListener{
         pr.move();
         p.move(); //self explanatory
 
+        for(int i = 0; i< shots.size(); i++){
+            shots.get(i).move();
+        }
+        //collision detecting stuff
         for(int i = 0; i< astlist.size(); i++){
-            if(!astlist.get(i).icon.isVisible()){
+            if(!astlist.get(i).icon.isVisible()){ //skips the bugged asteroids
                 continue;
             }
-            astlist.get(i).move();
+
+            //collision detector with other asteroids
+            //merge asteroids if their masses added up to 3 or less
+
+            for(int j = 0; j < astlist.size()-1; j++){
+                //astlist.size()-1 because of the bug described in
+                //spawn();
+                if(i==j){
+                    continue;
+                }else{
+                    if(astlist.get(i).hitbox.intersects(astlist.get(j).hitbox.getBounds())&& astlist.get(i).mass + astlist.get(j).mass <=3){
+                        int amass = astlist.get(i).mass;
+                        int bmass = astlist.get(j).mass;
+                        int asize = astlist.get(i).size;
+                        int bsize = astlist.get(j).size;
+                        double ax = astlist.get(i).x;
+                        double bx = astlist.get(j).x;
+                        double ay = astlist.get(i).y;
+                        double by = astlist.get(j).y;
+                        double avx = astlist.get(i).vx;
+                        double bvx = astlist.get(j).vx;
+                        double avy = astlist.get(i).vy;
+                        double bvy = astlist.get(j).vy;
+
+                        if(j<i){
+                            board.remove(astlist.get(i).icon);
+                            astlist.remove(i);
+                            
+                            board.remove(astlist.get(j).icon);
+                            astlist.remove(j);
+
+                            astlist.add(j,new ast(amass+bmass,
+                                        (ax+asize/2+bx+bsize/2)/2,
+                                        (ay+asize/2+by+bsize/2)/2, 
+                                        (avx+bvx)/(amass+bmass), 
+                                        (avy+bvy)/(amass+bmass)));
+                            board.add(astlist.get(j).icon);
+                        }else{
+                            board.remove(astlist.get(j).icon);
+                            astlist.remove(j);
+    
+                            board.remove(astlist.get(i).icon);
+                            astlist.remove(i);
+                            astlist.add(i,new ast(amass+bmass,
+                                                (ax+bx)/2,
+                                                (ay+by)/2, 
+                                                -(avx+bvx)/(amass+bmass), 
+                                                (avy+bvy)/(amass+bmass)));
+                            board.add(astlist.get(i).icon);
+                        }
+
+                        if(i>0){
+                            i--;
+                        }
+                        spawn((int)Math.random()*3+1);
+                        break;
+                    }else{
+
+                    }
+                }
+            }
+
+            //collision detection with player
             if(astlist.get(i).hitbox.intersects(p.hitbox.getBounds())){
                 board.remove(astlist.get(i).icon);
                 astlist.remove(i);
                 if(i>0){
                     i--;
                 }
-                p.dmg(astlist.get(i).dmg);
+                //p.dmg(astlist.get(i).dmg);
                 updatehpi();
                 if(p.hp<=0){
-                    p.hp = 0;
-                    updatehpi();
                     endGame();
+                    break;
                 }
                 
             }
+            for(int j = 0; j< shots.size();j++){
+                if(astlist.get(i).hitbox.intersects(shots.get(j).hitbox.getBounds())){
+                    board.remove(shots.get(j).icon);
+                    shots.remove(j);
+                    astlist.get(i).dmga(p.dps);
+                    if(astlist.get(i).hp <= 0){
+                        board.remove(astlist.get(i).icon);
+                        astlist.remove(i);
+                        if(i>0){
+                            i--;
+                        }
+                    }
+                    break;
+
+                }
+                //checks for collisions with any shots
+            }
+            astlist.get(i).move();
         }
+        //randomly spawn asteroids if the number is under the limit
         if(astlist.size()<=maxasts){
-            spawn(); //sometimes spawns new asteroids
+            int a = 0; 
+            for(int i = 0; i< astlist.size(); i++){
+                if(astlist.get(i).icon.isVisible()){
+                    a++;
+                }
+            }
+            int spawndice = (int)(Math.random()*100+1);
+            if(spawndice <= 5){
+                int massdice = (int)(Math.random()*100+1);
+                if(massdice<=10){
+                    spawn(3);
+                }else if(massdice<=50){
+                    spawn(2);
+                }else{
+                    spawn(1);
+                }
+            }
+
         }
         try {
             Thread.sleep(50); //20 ticks per second
@@ -107,47 +210,38 @@ public class Main extends JLayeredPane implements KeyListener{
     }
 
 
-    public void spawn(){
-        int spawndice = (int)(Math.random()*100+1);
-        if(spawndice <= 5){
-            int massdice = (int)(Math.random()*100+1);
-            if(massdice > 90){
-                astlist.add(new ast(3));
-            }else if(massdice > 60){
-                astlist.add(new ast(3));
-            }else{
-                astlist.add(new ast(3));
-            }
-
-            //band-aid fix for a bug that makes 
-            //the newest asteroid teleport to the middle when thrusting is true
-            astlist.get(astlist.size()-1).icon.setVisible(false); 
-            setLayer(board.add(astlist.get(astlist.size()-1).icon), 2);
-            if(astlist.size()>1){
-                astlist.get(astlist.size()-2).icon.setVisible(true);
-            }
+    public void spawn(int m){
+        astlist.add(new ast(m));
+        //band-aid fix for a bug that makes 
+        //the newest asteroid teleport to the middle when thrusting is true
+        astlist.get(astlist.size()-1).icon.setVisible(false); 
+        setLayer(board.add(astlist.get(astlist.size()-1).icon), 2);
+        if(astlist.size()>1){
+            astlist.get(astlist.size()-2).icon.setVisible(true);
         }
-    }
-    public void paint(Graphics g){
-        super.paintComponent(g);
+    } //spawn but with more input
 
-        /*
-        g.setColor(Color.black);
-        g.fillRect(0, 0, boardxs, boardys);
-        */      
+    public void shoot(){
+        shots.add(new shot((int)p.x+p.psize/2, (int)p.y+p.psize/2, p.dps, p.deg));
+        board.add(shots.get(shots.size()-1).icon);
     }
-    private void endGame(){
-        gameActive = false;
-    }
-    public void resetGame(){
-        while(astlist.size()>0){
-            astlist.remove(0);
-        }
-        p.reset();
-        pr.reset();
 
+
+    public int[] astCollide(ast a, ast b){
+
+        double sa = Math.sqrt(Math.pow(a.vx, 2) +Math.pow(a.vy, 2)); //speed of ast a 
+        double sb = Math.sqrt(Math.pow(b.vx, 2) +Math.pow(b.vy, 2)); //speed of ast b 
+
+        //final velocities of ast a
+        double[] posa = {a.x, a.y};
+        double[] posb = {b.x, b.y};
+        double av[] = {a.vx, a.vy};
+        double bv[] = {b.vx, b.vy};
+
+        return new int[] {(int)av[0], (int)av[1], (int)bv[0], (int)bv[1]};
     }
-    public void updatehpi(){
+
+    public void updatehpi(){ //updates hp % display
         hps = "HP: " + 100*p.hp/p.maxhp + "%";
         if(100*p.hp/p.maxhp<=25){
             hpi.setForeground(Color.red);
@@ -156,35 +250,63 @@ public class Main extends JLayeredPane implements KeyListener{
         hpi.setText(hps);
     }
 
+    public void paint(Graphics g){
+        super.paintComponent(g);
+        //does nothing atm
+        /*
+        g.setColor(Color.black);
+        g.fillRect(0, 0, boardxs, boardys);
+        */      
+    }
+
+    private void endGame(){ //self explanatory
+        gameActive = false;
+    }
+
+    public void resetGame(){ //self explanatory
+        while(astlist.size()>0){
+            astlist.remove(0);
+        }
+        p.reset();
+        pr.reset();
+
+    }
+
     @Override
     public void keyPressed(KeyEvent arg0){
        // System.out.println(arg0.getKeyCode());
         if(gameActive){
-            if(arg0.getKeyCode()==38){
+            if(arg0.getKeyCode()==38){ //up arrow
                 p.thrustOn();
             }
-            if(arg0.getKeyCode() == 39){
+            if(arg0.getKeyCode() == 39){ //left arrow
                 p.isTurning = 1;
                 pr.isTurning = 1;
             }
-            if(arg0.getKeyCode() == 37){
+            if(arg0.getKeyCode() == 37){ //right arrow
                 p.isTurning = 2;
                 pr.isTurning = 2;
             }
+            if(arg0.getKeyCode() == 32){//space bar, shoot
+                shoot();
+            }
         }
     }
+
     @Override
     public void keyReleased(KeyEvent arg0){
         if(gameActive){
-            if(arg0.getKeyCode()==38){
+            if(arg0.getKeyCode()==38){ //up arrow
                 p.thrustOff();
             }
+            //stops turning
             if(p.isTurning != 0 && pr.isTurning!=0 && (arg0.getKeyCode() == 37 || arg0.getKeyCode() == 39)){
                 p.isTurning = 0;
                 pr.isTurning = 0;
             }
         }
     }
+
     @Override
     public void keyTyped(KeyEvent arg0){
 

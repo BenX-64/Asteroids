@@ -11,7 +11,7 @@ public class ast {
     int mass;
     int size;
 
-    int msp = 1; //max speed possible, in msp per TICK
+    double msp = 0.5; //max speed possible, in msp per TICK
     int ms; //max speed
     int deg; //direction of asteroid movement, NOT rotation
 

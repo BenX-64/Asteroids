@@ -32,6 +32,10 @@ public class Main extends JLayeredPane implements KeyListener{
     ArrayList<ast> astlist = new ArrayList<>();
     int maxasts = 16; //sets limit for max # of asteroids on board at once
 
+    int scorevalue = 0;
+    String scorestring = "Score: " + Integer.toString(scorevalue);
+    JLabel score = new JLabel(scorestring);
+
     String cst = "Speed: " + String.format("%.2f",p.cs*20);
     JLabel cs = new JLabel(cst);
 
@@ -47,6 +51,11 @@ public class Main extends JLayeredPane implements KeyListener{
 
         setLayer(board.add(p.icon),1);
         setLayer(board.add(pr.icon),0);
+
+        score.setForeground(Color.white);
+        score.setBounds(boardxs/100,0, boardxs, 30);
+        score.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+        setLayer(board.add(score),0);
 
         cs.setForeground(Color.white); //current speed
         cs.setBounds(p.psize, boardys-70, boardxs/2, 20);
@@ -68,10 +77,8 @@ public class Main extends JLayeredPane implements KeyListener{
     }
 
     public void tick(){
-        cst = "Speed: "+ String.format("%.2f", p.cs*20);
-        cs.setText(cst);
 
-        updatehpi();
+        updateText();
 
         pr.move();
         p.move(); //self explanatory
@@ -95,46 +102,7 @@ public class Main extends JLayeredPane implements KeyListener{
                     continue;
                 }else{
                     if(astlist.get(i).hitbox.intersects(astlist.get(j).hitbox.getBounds())&& astlist.get(i).mass + astlist.get(j).mass <=3){
-                        int amass = astlist.get(i).mass;
-                        int bmass = astlist.get(j).mass;
-                        int asize = astlist.get(i).size;
-                        int bsize = astlist.get(j).size;
-                        double ax = astlist.get(i).x;
-                        double bx = astlist.get(j).x;
-                        double ay = astlist.get(i).y;
-                        double by = astlist.get(j).y;
-                        double avx = astlist.get(i).vx;
-                        double bvx = astlist.get(j).vx;
-                        double avy = astlist.get(i).vy;
-                        double bvy = astlist.get(j).vy;
-
-                        if(j<i){
-                            board.remove(astlist.get(i).icon);
-                            astlist.remove(i);
-                            
-                            board.remove(astlist.get(j).icon);
-                            astlist.remove(j);
-
-                            astlist.add(j,new ast(amass+bmass,
-                                        (ax+asize/2+bx+bsize/2)/2,
-                                        (ay+asize/2+by+bsize/2)/2, 
-                                        (avx+bvx)/(amass+bmass), 
-                                        (avy+bvy)/(amass+bmass)));
-                            board.add(astlist.get(j).icon);
-                        }else{
-                            board.remove(astlist.get(j).icon);
-                            astlist.remove(j);
-    
-                            board.remove(astlist.get(i).icon);
-                            astlist.remove(i);
-                            astlist.add(i,new ast(amass+bmass,
-                                                (ax+bx)/2,
-                                                (ay+by)/2, 
-                                                -(avx+bvx)/(amass+bmass), 
-                                                (avy+bvy)/(amass+bmass)));
-                            board.add(astlist.get(i).icon);
-                        }
-
+                        astCollide(i, j, 0);
                         if(i>0){
                             i--;
                         }
@@ -145,27 +113,23 @@ public class Main extends JLayeredPane implements KeyListener{
                     }
                 }
             }
-
             //collision detection with player
             if(astlist.get(i).hitbox.intersects(p.hitbox.getBounds())){
-                board.remove(astlist.get(i).icon);
-                astlist.remove(i);
+                astCollide(i, 0, 1);
+
                 if(i>0){
                     i--;
                 }
-                //p.dmg(astlist.get(i).dmg);
-                updatehpi();
                 if(p.hp<=0){
                     endGame();
                     break;
                 }
                 
             }
+            //Asteroid shot collisions
             for(int j = 0; j< shots.size();j++){
                 if(astlist.get(i).hitbox.intersects(shots.get(j).hitbox.getBounds())){
-                    board.remove(shots.get(j).icon);
-                    shots.remove(j);
-                    astlist.get(i).dmga(p.dps);
+                    astCollide(i, j , 2);
                     if(astlist.get(i).hp <= 0){
                         board.remove(astlist.get(i).icon);
                         astlist.remove(i);
@@ -223,31 +187,85 @@ public class Main extends JLayeredPane implements KeyListener{
 
     public void shoot(){
         shots.add(new shot((int)p.x+p.psize/2, (int)p.y+p.psize/2, p.dps, p.deg));
-        board.add(shots.get(shots.size()-1).icon);
+        setLayer(board.add(shots.get(shots.size()-1).icon),1);
     }
 
 
-    public int[] astCollide(ast a, ast b){
+    public void astCollide(int i, int j, int collisionType){
+        /*
+        collision type 0: asteroid on asteroid
+        collision type 1: asteroid on player
+        collision type 2: asteroid on shot
+        */
 
-        double sa = Math.sqrt(Math.pow(a.vx, 2) +Math.pow(a.vy, 2)); //speed of ast a 
-        double sb = Math.sqrt(Math.pow(b.vx, 2) +Math.pow(b.vy, 2)); //speed of ast b 
+        if(collisionType == 0){
+            int amass = astlist.get(i).mass;
+            int bmass = astlist.get(j).mass;
+            int asize = astlist.get(i).size;
+            int bsize = astlist.get(j).size;
+            double ax = astlist.get(i).x;
+            double bx = astlist.get(j).x;
+            double ay = astlist.get(i).y;
+            double by = astlist.get(j).y;
+            double avx = astlist.get(i).vx;
+            double bvx = astlist.get(j).vx;
+            double avy = astlist.get(i).vy;
+            double bvy = astlist.get(j).vy;
+    
+            if(j<i){
+                board.remove(astlist.get(i).icon);
+                astlist.remove(i);
+                
+                board.remove(astlist.get(j).icon);
+                astlist.remove(j);
+    
+                astlist.add(j,new ast(amass+bmass,
+                            (ax+asize/2+bx+bsize/2)/2,
+                            (ay+asize/2+by+bsize/2)/2, 
+                            (avx+bvx)/(amass+bmass), 
+                            (avy+bvy)/(amass+bmass)));
+                setLayer(board.add(astlist.get(j).icon),2);
+            }else{
+                board.remove(astlist.get(j).icon);
+                astlist.remove(j);
+    
+                board.remove(astlist.get(i).icon);
+                astlist.remove(i);
+                astlist.add(i,new ast(amass+bmass,
+                                    (ax+bx)/2,
+                                    (ay+by)/2, 
+                                    -(avx+bvx)/(amass+bmass), 
+                                    (avy+bvy)/(amass+bmass)));
+                setLayer(board.add(astlist.get(i).icon),2);
+            }
+        }else if(collisionType == 1){
+            board.remove(astlist.get(i).icon);
+            astlist.remove(i);
 
-        //final velocities of ast a
-        double[] posa = {a.x, a.y};
-        double[] posb = {b.x, b.y};
-        double av[] = {a.vx, a.vy};
-        double bv[] = {b.vx, b.vy};
+            p.dmg(astlist.get(i).dmg);
+            updateText();
 
-        return new int[] {(int)av[0], (int)av[1], (int)bv[0], (int)bv[1]};
+        }else if(collisionType==2){
+            scorevalue += astlist.get(i).mass*5;
+            board.remove(shots.get(j).icon);
+            shots.remove(j);
+            astlist.get(i).dmga(p.dps);
+        }
     }
 
-    public void updatehpi(){ //updates hp % display
+    public void updateText(){ //updates hp % display
+        scorestring = "Score: " + Integer.toString(scorevalue);
+        score.setText(scorestring);
+
+
         hps = "HP: " + 100*p.hp/p.maxhp + "%";
         if(100*p.hp/p.maxhp<=25){
             hpi.setForeground(Color.red);
         }
-        hpi.setFont(new Font("TimesRoman", Font.PLAIN, 20));
         hpi.setText(hps);
+
+        cst = "Speed: "+ String.format("%.2f", p.cs*20);
+        cs.setText(cst);
     }
 
     public void paint(Graphics g){
@@ -287,7 +305,8 @@ public class Main extends JLayeredPane implements KeyListener{
                 p.isTurning = 2;
                 pr.isTurning = 2;
             }
-            if(arg0.getKeyCode() == 32){//space bar, shoot
+            if(arg0.getKeyCode() == 32 && !p.shooting){//space bar, shoot
+                p.shooting = true; //stops player from holding space
                 shoot();
             }
         }
@@ -303,6 +322,10 @@ public class Main extends JLayeredPane implements KeyListener{
             if(p.isTurning != 0 && pr.isTurning!=0 && (arg0.getKeyCode() == 37 || arg0.getKeyCode() == 39)){
                 p.isTurning = 0;
                 pr.isTurning = 0;
+            }
+            //releases space(shoot)
+            if(arg0.getKeyCode()==32 && p.shooting){
+                p.shooting = false;
             }
         }
     }

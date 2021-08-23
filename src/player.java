@@ -17,6 +17,7 @@ public class player {
     int hp;
     int dps; //damage per shot
 
+    boolean shooting = false; //stops player from holding space
     boolean thrusting = false; //self explanatory
     int isTurning = 0; //self explanatory, 0 for no, 1 = counter-clockwise, 2 = clockwise
     double x = Main.boardxs/2 - psize/2; //player x and y positions

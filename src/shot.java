@@ -7,7 +7,7 @@ public class shot {
     double x;
     double y;
     int size = 20;
-    private double mv = 50; //max velocity
+    private double mv = 30; //max velocity
     private double vx;
     private int vy;
     int dps;
@@ -18,11 +18,13 @@ public class shot {
     Area hitbox;
 
 
+
     public shot(int x, int y, int dps, int deg){
         iconPath = new File("").getAbsolutePath() + "/assets/shot.png";
         image = new ImageIcon(iconPath);
         this.icon = new JLabel(image);
         icon.setBounds(x,y,size,size);
+
         hitbox = new Area(icon.getBounds());
 
         this.x = x;

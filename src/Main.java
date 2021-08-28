@@ -46,7 +46,7 @@ public class Main extends JLayeredPane implements KeyListener{
     JLabel bighscore = new JLabel(hscorestring);
     JLabel restartinstruct = new JLabel("Press Space to Restart");
 
-    String cst = "Speed: " + String.format("%.2f",p.cs*20);
+    String cst = "Speed: " + String.format("%.2f",p.cs*20); //rounds speed to hundreths
     JLabel cs = new JLabel(cst);
 
     String hps = "HP: " + 100*p.hp/p.maxhp + "%";

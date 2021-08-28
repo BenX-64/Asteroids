@@ -1,6 +1,7 @@
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JLabel;
+import javax.swing.JButton;
 
 import java.awt.Font;
 import java.awt.Color;
@@ -11,6 +12,9 @@ import java.util.ArrayList;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.PrintWriter;
+import java.util.Scanner;
 
 public class Main extends JLayeredPane implements KeyListener{
     static boolean gameActive = true;
@@ -35,6 +39,13 @@ public class Main extends JLayeredPane implements KeyListener{
     int scorevalue = 0;
     String scorestring = "Score: " + Integer.toString(scorevalue);
     JLabel score = new JLabel(scorestring);
+    JLabel bscore = new JLabel(scorestring);
+
+    int hscorevalue = 0;
+    String hscorestring = "High Score: " + Integer.toString(hscorevalue);
+    JLabel hscore = new JLabel(hscorestring);
+    JLabel bighscore = new JLabel(hscorestring);
+    JLabel restartinstruct = new JLabel("Press Space to Restart");
 
     String cst = "Speed: " + String.format("%.2f",p.cs*20);
     JLabel cs = new JLabel(cst);
@@ -55,7 +66,40 @@ public class Main extends JLayeredPane implements KeyListener{
         score.setForeground(Color.white);
         score.setBounds(boardxs/100,0, boardxs, 30);
         score.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+        score.setVerticalAlignment(JLabel.TOP);
+        score.setHorizontalAlignment(JLabel.LEFT);
         setLayer(board.add(score),0);
+
+        hscore.setForeground(Color.white);
+        hscore.setBounds(boardxs/100, score.getHeight(), boardxs, 30);
+        hscore.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+        hscore.setHorizontalAlignment(JLabel.LEFT);
+        setLayer(board.add(hscore),0);
+
+        bscore.setForeground(Color.white);
+        bscore.setFont(new Font("TimesRoman", Font.PLAIN, 40));
+        bscore.setBounds(0,-100, boardxs, boardys);
+        bscore.setVerticalAlignment(JLabel.CENTER);
+        bscore.setHorizontalAlignment(JLabel.CENTER);
+        setLayer(board.add(bscore),0);
+        bscore.setVisible(false);
+
+        bighscore.setForeground(Color.white);
+        bighscore.setFont(new Font("TimesRoman", Font.PLAIN, 40));
+        bighscore.setBounds(0,-60, boardxs, boardys);
+        bighscore.setVerticalAlignment(JLabel.CENTER);
+        bighscore.setHorizontalAlignment(JLabel.CENTER);
+        setLayer(board.add(bighscore),0);
+        bighscore.setVisible(false);
+
+        restartinstruct.setForeground(Color.white);
+        restartinstruct.setFont(new Font("TimesRoman", Font.PLAIN, 40));
+        restartinstruct.setBounds(0, 0, boardxs, boardys);
+        restartinstruct.setVerticalAlignment(JLabel.CENTER);
+        restartinstruct.setHorizontalAlignment(JLabel.CENTER);
+        setLayer(board.add(restartinstruct),0);
+        restartinstruct.setVisible(false);
+
 
         cs.setForeground(Color.white); //current speed
         cs.setBounds(p.psize, boardys-70, boardxs/2, 20);
@@ -70,10 +114,15 @@ public class Main extends JLayeredPane implements KeyListener{
         board.add(this);
         board.setVisible(true);
         setLayer(this, 3);
-
-        while(gameActive){
-            tick(); //self explanatory
+        
+        while(true){
+            if(gameActive){
+                tick();
+            }else{
+                System.out.print("");
+            }
         }
+        
     }
 
     public void tick(){
@@ -116,7 +165,6 @@ public class Main extends JLayeredPane implements KeyListener{
             //collision detection with player
             if(astlist.get(i).hitbox.intersects(p.hitbox.getBounds())){
                 astCollide(i, 0, 1);
-
                 if(i>0){
                     i--;
                 }
@@ -238,11 +286,11 @@ public class Main extends JLayeredPane implements KeyListener{
                                     (avy+bvy)/(amass+bmass)));
                 setLayer(board.add(astlist.get(i).icon),2);
             }
-        }else if(collisionType == 1){
+        }
+        else if(collisionType == 1){
+            p.dmg(astlist.get(i).dmg);
             board.remove(astlist.get(i).icon);
             astlist.remove(i);
-
-            p.dmg(astlist.get(i).dmg);
             updateText();
 
         }else if(collisionType==2){
@@ -255,6 +303,9 @@ public class Main extends JLayeredPane implements KeyListener{
 
     public void updateText(){ //updates hp % display
         scorestring = "Score: " + Integer.toString(scorevalue);
+        hscorevalue = scorevalue > hscorevalue ? scorevalue : hscorevalue;
+        hscorestring = "High Score: " + Integer.toString(hscorevalue);
+        hscore.setText(hscorestring);
         score.setText(scorestring);
 
 
@@ -279,15 +330,71 @@ public class Main extends JLayeredPane implements KeyListener{
 
     private void endGame(){ //self explanatory
         gameActive = false;
+        
+        bscore.setText(scorestring);
+        bscore.setHorizontalAlignment(JLabel.CENTER);
+        bscore.setVisible(true);
+
+        bighscore.setText(hscorestring);
+        bighscore.setHorizontalAlignment(JLabel.CENTER);
+        bighscore.setVisible(true);
+
+        restartinstruct.setVisible(true);
+
+        endScreen();
     }
 
     public void resetGame(){ //self explanatory
         while(astlist.size()>0){
+            board.remove(astlist.get(0).icon);
             astlist.remove(0);
         }
+        while(shots.size()>0){
+            board.remove(shots.get(0).icon);
+            shots.remove(0);
+        }
+
+        scorevalue = 0;
+        scorestring = "Score: " + Integer.toString(scorevalue);
+        score.setText(scorestring);
+
+        p.cs = 0.0;
+        cst = "Speed: " + String.format("%.2f",p.cs*20);
+        cs.setText(cst);
+
+        hpi.setForeground(Color.white);
+        hps = "HP: " + 100*p.hp/p.maxhp + "%";
+        hpi.setText(hps);
+
         p.reset();
         pr.reset();
 
+        p.icon.setVisible(true);
+        pr.icon.setVisible(true);
+        score.setVisible(true);
+        hscore.setVisible(true);
+        hpi.setVisible(true);
+        cs.setVisible(true);
+
+        bscore.setVisible(false);
+        bighscore.setVisible(false);
+        restartinstruct.setVisible(false);
+
+        gameActive = true;
+    }
+
+
+    public void endScreen(){
+        //p.icon.setVisible(false);
+        pr.icon.setVisible(false);
+        score.setVisible(false);
+        hscore.setVisible(false);
+        hpi.setVisible(false);
+        cs.setVisible(false);
+
+
+        //resetGame();
+        //startGame();
     }
 
     @Override
@@ -305,7 +412,7 @@ public class Main extends JLayeredPane implements KeyListener{
                 p.isTurning = 2;
                 pr.isTurning = 2;
             }
-            if(arg0.getKeyCode() == 32 && !p.shooting){//space bar, shoot
+            if(arg0.getKeyCode() == 32 && !p.shooting && gameActive){//space bar, shoot
                 p.shooting = true; //stops player from holding space
                 shoot();
             }
@@ -328,6 +435,10 @@ public class Main extends JLayeredPane implements KeyListener{
                 p.shooting = false;
             }
         }
+        if(restartinstruct.isVisible() && arg0.getKeyCode() == 32){
+            resetGame();
+        }
+
     }
 
     @Override

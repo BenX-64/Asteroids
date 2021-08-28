@@ -140,6 +140,27 @@ public class player {
     }
 
     public void reset(){
+        av = 0;
         hp = maxhp;
+        vx = 0;
+        vy = 0;
+        
+        totdeg = 0;
+        deg = 0;
+        degstr = Integer.toString(deg);
+        icon.setBounds((int)x, (int)y, psize, psize);
+        hitbox = new Area(icon.getBounds());
+        thrusting = false;
+
+        if(!isDummy){
+            x = Main.boardxs/2 - psize/2;
+            y = Main.boardys/2 - psize/2;
+        }
+        String tempIconPath = new File("").getAbsolutePath()+ "/assets/playerl/playerl" + 0 + ".png"; 
+        
+        ImageIcon tempImage = new ImageIcon(tempIconPath);
+        icon.setIcon(tempImage);
+        icon.setBounds((int)x, (int)y, psize, psize);
+
     }
 }

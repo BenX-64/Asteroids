@@ -348,9 +348,8 @@ public class Main extends JLayeredPane implements KeyListener{
     private void endGame(){ //self explanatory
         if(hscorevalue > oldhscorevalue){
             try {
-                FileWriter writer = new FileWriter(new File("").getAbsolutePath()+"/assets/highscore.txt", true);
+                FileWriter writer = new FileWriter(new File("").getAbsolutePath()+"/assets/highscore.txt", false);
                 BufferedWriter bufferedWriter = new BufferedWriter(writer);
-     
                 bufferedWriter.write(Integer.toString(hscorevalue));
                 bufferedWriter.close();
             } catch (IOException e) {

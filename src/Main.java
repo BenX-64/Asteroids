@@ -10,11 +10,9 @@ import java.awt.geom.Area;
 
 import java.util.ArrayList;
 
+import java.io.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.File;
-import java.io.PrintWriter;
-import java.util.Scanner;
 
 public class Main extends JLayeredPane implements KeyListener{
     static boolean gameActive = true;
@@ -42,6 +40,7 @@ public class Main extends JLayeredPane implements KeyListener{
     JLabel bscore = new JLabel(scorestring);
 
     int hscorevalue = 0;
+    int oldhscorevalue = 0;
     String hscorestring = "High Score: " + Integer.toString(hscorevalue);
     JLabel hscore = new JLabel(hscorestring);
     JLabel bighscore = new JLabel(hscorestring);
@@ -69,6 +68,22 @@ public class Main extends JLayeredPane implements KeyListener{
         score.setVerticalAlignment(JLabel.TOP);
         score.setHorizontalAlignment(JLabel.LEFT);
         setLayer(board.add(score),0);
+
+        try {
+            FileReader reader = new FileReader(new File("").getAbsolutePath()+"/assets/highscore.txt");
+            BufferedReader bufferedReader = new BufferedReader(reader);
+ 
+            String line;
+ 
+            while ((line = bufferedReader.readLine()) != null) {
+                hscorevalue = Integer.valueOf(line);
+                oldhscorevalue = hscorevalue;
+            }
+            reader.close();
+ 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         hscore.setForeground(Color.white);
         hscore.setBounds(boardxs/100, score.getHeight(), boardxs, 30);
@@ -120,6 +135,8 @@ public class Main extends JLayeredPane implements KeyListener{
                 tick();
             }else{
                 System.out.print("");
+                //i dont know why but the game doesnt restart if nothing is here
+                //my guess is some automatic breaking thing
             }
         }
         
@@ -329,6 +346,17 @@ public class Main extends JLayeredPane implements KeyListener{
     }
 
     private void endGame(){ //self explanatory
+        if(hscorevalue > oldhscorevalue){
+            try {
+                FileWriter writer = new FileWriter(new File("").getAbsolutePath()+"/assets/highscore.txt", true);
+                BufferedWriter bufferedWriter = new BufferedWriter(writer);
+     
+                bufferedWriter.write(Integer.toString(hscorevalue));
+                bufferedWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         gameActive = false;
         
         bscore.setText(scorestring);

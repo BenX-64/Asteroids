@@ -3,6 +3,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLayeredPane;
 import javax.swing.JLabel;
 import java.awt.geom.Area;
+
 public class ast {
     private int maxhp; //self explanatory
     double x = 0;

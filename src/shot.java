@@ -6,11 +6,11 @@ import java.awt.geom.Area;
 public class shot {
     double x;
     double y;
-    int size = 20;
+    int size = 20; //size of sprite
     private double mv = 30; //max velocity
     private double vx;
     private int vy;
-    int dps;
+    int dps; //dmg per shot
 
     JLabel icon;
     String iconPath; 
@@ -31,7 +31,7 @@ public class shot {
         this.y = y;
         this.dps = dps;
 
-        this.vx = -(int)(mv*Math.sin(Math.toRadians(deg)));
+        this.vx = -(int)(mv*Math.sin(Math.toRadians(deg))); //fires the shot in the direction the player chose
         this.vy = -(int)(mv*Math.cos(Math.toRadians(deg)));
     }
     public void move(){
@@ -40,8 +40,5 @@ public class shot {
         icon.setBounds((int)x,(int)y,size,size);
         hitbox = new Area(icon.getBounds());
 
-    }
-    public void shadowcheck(){ //checks ahead if the shot's path intersects with any asteroids
-        //for(int i = 0; i< mv)
     }
 }

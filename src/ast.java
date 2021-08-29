@@ -18,15 +18,18 @@ public class ast {
 
     boolean isHit = false;
 
+    //hp values for different masses
     int hp;
     int hp1 = 13;
     int hp2 = 50;
     int hp3 = 100;
 
+    //sprite sizes for different amsses
     int size1 = 50;
     int size2 = 75;
     int size3 = 100;
 
+    //dmg values for different masses
     int dmg;
     int dmg1 = 25;
     int dmg2 = 50;
@@ -36,13 +39,14 @@ public class ast {
     ImageIcon image;
     String iconPath, iconPath3b;
 
-    Area hitbox;
+    Area hitbox; //self explanatory
 
     static int numAsts = 0;
 
     public ast(int mass){
         this.mass = mass;
 
+        //makes the speed, and direction of the asteroid completely random
         ms = (int)(Math.random()*msp+3);
         deg = (int)(Math.random()*360+ 1);
 
@@ -123,26 +127,16 @@ public class ast {
             dmg = dmg3;
         }
 
-
         this.icon.setBounds((int)x,(int)y,size,size);
         hitbox = new Area(icon.getBounds());
 
     }
     public void move(){ //self explanatory
-        /*
-        if(hasCollided){
-            tickcount++;
-            if(tickcount > 10){
-                hasCollided = false;
-                tickcount = 0;
-            }
-        }
-        */
         antiOOB();
         x-=this.vx;
         y-=this.vy;
         this.icon.setBounds((int)x,(int)y,size,size); 
-        hitbox = new Area(icon.getBounds());
+        hitbox = new Area(icon.getBounds()); //updates hitbox position
     }
 
     public void antiOOB(){  //prevents asteroid from leaving the screen
@@ -163,9 +157,9 @@ public class ast {
             //y = Main.boardys-psize/2;
         }
     }   
-    public void dmga(int dmg){
+    public void dmga(int dmg){ //dmga for dmg asteroid
         hp -= dmg;
-        if(mass == 3 && hp <= 50){
+        if(mass == 3 && hp <= 50){ //makes big asteroids crack
             ImageIcon tempImage = new ImageIcon(iconPath3b);
             icon.setIcon(tempImage);
             icon.setBounds((int)x , (int)y, size, size);

@@ -1,4 +1,4 @@
-Sad ripoff of asteroids
+Bad ripoff of asteroids
 
 Controls-
 Up Arrow: Thrust

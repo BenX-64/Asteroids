@@ -1,12 +1,9 @@
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JLabel;
-import javax.swing.JButton;
 
 import java.awt.Font;
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.geom.Area;
 
 import java.util.ArrayList;
 
@@ -218,12 +215,6 @@ public class Main extends JLayeredPane implements KeyListener{
         }
         //randomly spawn asteroids if the number is under the limit
         if(astlist.size()<=maxasts){ //creates a chance for a new asteroid to spawn if the total amount is under the limit
-            int a = 0; 
-            for(int i = 0; i< astlist.size(); i++){
-                if(astlist.get(i).icon.isVisible()){
-                    a++;
-                }
-            }
             int spawndice = (int)(Math.random()*100+1);
             if(spawndice <= 5){
                 int massdice = (int)(Math.random()*100+1);

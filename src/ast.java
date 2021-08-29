@@ -5,7 +5,6 @@ import javax.swing.JLabel;
 import java.awt.geom.Area;
 
 public class ast {
-    private int maxhp; //self explanatory
     double x = 0;
     double y = 0; 
     double vx, vy;
